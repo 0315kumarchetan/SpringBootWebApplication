@@ -1,5 +1,6 @@
 package com.codingshuttle.springbootwebtutorial.springbootwebtutorial.entities;
 
+import com.codingshuttle.springbootwebtutorial.springbootwebtutorial.dto.AddressOfEmployee;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.*;
@@ -18,6 +19,8 @@ public class EmployeeEntity {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
     private String name;
+    @Embedded
+    private AddressOfEmployee addressOfEmployee;
     private String email;
     private Integer age;
     private LocalDate dateOfJoining;

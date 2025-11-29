@@ -9,10 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
-import java.util.List;
-import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.Optional;
+import java.util.*;
 
 @RestController
 @RequestMapping(path = "/employees")
@@ -30,21 +27,35 @@ public class EmployeeController {
         this.employeeService = employeeService;
     }
 
-    @GetMapping(path = "/{employeeId}")
-    public EmployeeDTO getEmployeeById(@PathVariable(name = "employeeId") Long id) {
-        return employeeService.getEmployeeById(id);
-    }
-
-    @GetMapping
-    public List<EmployeeEntity> getAllEmployees(@RequestParam(required = false, name = "inputAge") Integer age,
-                                                @RequestParam(required = false) String sortBy) {
-        return employeeService.getAllEmployees();
-    }
-
     @PostMapping
-    public EmployeeDTO createNewEmployee(@RequestBody @Valid EmployeeDTO inputEmployee) {
-        return employeeService.createNewEmployee(inputEmployee);
+    public ResponseEntity<EmployeeDTO> createNewEmployee(@RequestBody @Valid EmployeeDTO inputEmployee) {
+        return new ResponseEntity<>(employeeService.createNewEmployee(inputEmployee),HttpStatus.CREATED);
     }
+
+    @GetMapping(path = "/{employeeId}")
+    public ResponseEntity<EmployeeDTO> getEmployeeById(@PathVariable(name = "employeeId") Long id) {
+        Optional<EmployeeDTO> employeeDTO =  employeeService.getEmployeeById(id);
+        return employeeDTO.map(employeeDTO1 -> ResponseEntity.ok(employeeDTO1))
+                .orElse(ResponseEntity.notFound().build());
+    }
+    @PutMapping(path = "/{employeeId}")
+    public ResponseEntity<EmployeeDTO> updateEmployeeById(@PathVariable Long employeeId, @RequestBody @Valid EmployeeDTO inputEmployee) {
+        return ResponseEntity.ok(employeeService.updateEmployeeById(employeeId,inputEmployee));
+    }
+    @DeleteMapping(path = "/{employeeId}")
+    public ResponseEntity<Boolean> deleteById(@PathVariable Long employeeId) {
+        return ResponseEntity.ok(employeeService.deleteById(employeeId));
+    }
+    @GetMapping
+    public ResponseEntity<List<EmployeeEntity>> getAllEmployees(@RequestParam(required = false, name = "inputAge") Integer age,
+                                                @RequestParam(required = false) String sortBy) {
+        return ResponseEntity.ok(employeeService.getAllEmployees());
+    }
+    @PatchMapping(path = "/partialEmployeeUpdate/{employeeId}")
+    public ResponseEntity<EmployeeDTO> partialEmployeeUpdate(@PathVariable Long employeeId, @RequestBody HashMap<String,Object> update){
+        return ResponseEntity.ok(employeeService.partialEmployeeUpdate(employeeId,update));
+    }
+
 
 }
 
