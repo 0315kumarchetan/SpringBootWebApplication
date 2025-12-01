@@ -16,10 +16,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import java.lang.reflect.Field;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -56,7 +53,9 @@ public class EmployeeService {
     }
 
     public EmployeeDTO updateEmployeeById(Long employeeId,EmployeeDTO employeeDTO){
-        EmployeeEntity employeeEntity = modelMapper.map(employeeDTO,EmployeeEntity.class);
+        EmployeeEntity employeeEntity = employeeRepository.findById(employeeId).orElse(null);
+        if(employeeEntity==null)throw new RuntimeException("Partial update Employee not found");
+        employeeEntity = modelMapper.map(employeeDTO,EmployeeEntity.class);
         employeeEntity.setId(employeeId);
         EmployeeEntity employeeEntity1 = employeeRepository.save(employeeEntity);
         return modelMapper.map(employeeEntity1,EmployeeDTO.class);
@@ -85,7 +84,7 @@ public class EmployeeService {
 
     public EmployeeDTO partialEmployeeUpdate( Long employeeId, HashMap<String,Object> update){
         EmployeeEntity employeeEntity = employeeRepository.findById(employeeId).orElse(null);
-        if(employeeEntity==null)throw new RuntimeException("Employee not found");
+        if(employeeEntity==null)throw new RuntimeException("Partial update Employee not found");
         JsonMergePatch mergePatch;
         JsonNode mergedJson;
         EmployeeEntity mergedEmployee;

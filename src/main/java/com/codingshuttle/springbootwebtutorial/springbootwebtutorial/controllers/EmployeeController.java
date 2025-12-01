@@ -36,8 +36,9 @@ public class EmployeeController {
     public ResponseEntity<EmployeeDTO> getEmployeeById(@PathVariable(name = "employeeId") Long id) {
         Optional<EmployeeDTO> employeeDTO =  employeeService.getEmployeeById(id);
         return employeeDTO.map(employeeDTO1 -> ResponseEntity.ok(employeeDTO1))
-                .orElse(ResponseEntity.notFound().build());
+                .orElseThrow(()->new NoSuchElementException("Employee not found"));
     }
+
     @PutMapping(path = "/{employeeId}")
     public ResponseEntity<EmployeeDTO> updateEmployeeById(@PathVariable Long employeeId, @RequestBody @Valid EmployeeDTO inputEmployee) {
         return ResponseEntity.ok(employeeService.updateEmployeeById(employeeId,inputEmployee));
@@ -52,7 +53,7 @@ public class EmployeeController {
         return ResponseEntity.ok(employeeService.getAllEmployees());
     }
     @PatchMapping(path = "/partialEmployeeUpdate/{employeeId}")
-    public ResponseEntity<EmployeeDTO> partialEmployeeUpdate(@PathVariable Long employeeId, @RequestBody HashMap<String,Object> update){
+    public ResponseEntity<EmployeeDTO> partialEmployeeUpdate(@PathVariable Long employeeId, @RequestBody @Valid HashMap<String,Object> update){
         return ResponseEntity.ok(employeeService.partialEmployeeUpdate(employeeId,update));
     }
 
