@@ -13,32 +13,41 @@ import java.util.stream.Collectors;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+    private ResponseEntity<ApiResponse<?>> buildErrorResponseEntity(ApiError apiError){
+        return  new ResponseEntity<>(new ApiResponse<>(apiError),apiError.getStatus());
+    }
+
     @ExceptionHandler(NoSuchElementException.class)
-    public ResponseEntity<ApiError> exceptionHandler(NoSuchElementException exception){
-        return  new ResponseEntity<>(ApiError.builder()
-                        .status(HttpStatus.NOT_FOUND)
-                        .message(exception.getMessage())
-                        .build(),HttpStatus.NOT_FOUND);
+    public ResponseEntity<ApiResponse<?>> exceptionHandler(NoSuchElementException exception){
+        ApiError apiError = ApiError.builder()
+                .status(HttpStatus.NOT_FOUND)
+                .message(exception.getMessage())
+                .build();
+        return  buildErrorResponseEntity(apiError);
 
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ApiError> internalServerError(Exception ex){
-        return new ResponseEntity<>(ApiError.builder()
+    public ResponseEntity<ApiResponse<?>> internalServerError(Exception ex){
+        ApiError apiError =  ApiError.builder()
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .message(ex.getMessage()).build(),HttpStatus.INTERNAL_SERVER_ERROR);
+                .message(ex.getMessage()).build();
+        return buildErrorResponseEntity(apiError);
+
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ApiError> methodArgumentNotValidException(MethodArgumentNotValidException ex){
+    public ResponseEntity<ApiResponse<?>> methodArgumentNotValidException(MethodArgumentNotValidException ex){
         List<String> errors = ex.getBindingResult()
                 .getAllErrors()
                 .stream()
                 .map(error->error.getDefaultMessage())
                 .collect(Collectors.toList());
-        return new ResponseEntity<>(ApiError.builder()
+
+        ApiError apiError = ApiError.builder()
                 .status(HttpStatus.BAD_REQUEST)
                 .subError(errors)
-                .message("Request is not valid").build(),HttpStatus.BAD_REQUEST);
+                .message("Request is not valid").build();
+        return buildErrorResponseEntity(apiError);
     }
 }
