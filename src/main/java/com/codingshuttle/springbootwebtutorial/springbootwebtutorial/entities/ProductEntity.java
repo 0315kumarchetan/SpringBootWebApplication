@@ -31,7 +31,7 @@ public class ProductEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false,length = 26)
+    @Column(nullable = false,unique = true,length = 26)
     private String sku;
 
     @Column(name = "title_x",nullable = false)
